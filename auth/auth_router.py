@@ -14,7 +14,7 @@ from .dependencies import get_current_user
 
 
 
-router = APIRouter()
+router = APIRouter(prefix ="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def register(user:UserCreate, db: AsyncSession = Depends(get_db)):
@@ -63,12 +63,12 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Async
 
     
 
-@router.get("/me", response_model=UserOut)
+@router.get("/", response_model=UserOut)
 async def get_me(me: User = Depends(get_current_user)):
     return me
 
 
-@router.post("/change-password")
+@router.post("/")
 async def change_password(data: PasswordChange, current_user : User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     # 1. Check current password (use current_user, not User)
@@ -87,7 +87,7 @@ async def change_password(data: PasswordChange, current_user : User = Depends(ge
     
     return {"message": "Password updated successfully"}
 
-@router.patch("/update-profile", response_model=UserOut)
+@router.patch("/", response_model=UserOut)
 async def update_profile (data: ProfileUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
 
     if data.first_name is not None:
@@ -97,6 +97,7 @@ async def update_profile (data: ProfileUpdate, current_user: User = Depends(get_
             current_user.last_name = data.last_name
 
     await db.commit()
+    await db.refresh(current_user)
 
     return current_user
 

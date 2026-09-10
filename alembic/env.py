@@ -9,7 +9,8 @@ from alembic import context
 from database import Base
 from config import settings
 
-from auth.auth_models import User, CV
+from auth.auth_models import User
+from cv.cv_model import CV
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
